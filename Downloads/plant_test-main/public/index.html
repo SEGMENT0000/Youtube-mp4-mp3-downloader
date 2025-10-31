@@ -1,0 +1,1413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PlantGenius | Intelligent Plant Diagnosis</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #1ec193;
+            --primary-dark: #0f9b74;
+            --accent: #3b82f6;
+            --deep: #0a192f;
+            --deep-alt: #13233f;
+            --surface: rgba(14, 22, 38, 0.75);
+            --surface-solid: #14263f;
+            --glass: rgba(17, 35, 58, 0.65);
+            --text-primary: #f8fafc;
+            --text-secondary: #c4d3eb;
+            --text-muted: #8fa1c3;
+            --border: rgba(67, 93, 135, 0.35);
+            --border-strong: rgba(67, 93, 135, 0.6);
+            --shadow-md: 0 20px 40px rgba(10, 25, 47, 0.45);
+            --shadow-lg: 0 30px 60px rgba(10, 25, 47, 0.55);
+            --radius-xl: 28px;
+            --radius-lg: 22px;
+            --radius-md: 18px;
+            --max-width: 1180px;
+            scroll-behavior: smooth;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: radial-gradient(circle at 10% 0%, rgba(30, 193, 147, 0.18), transparent 55%),
+                        radial-gradient(circle at 90% 10%, rgba(59, 130, 246, 0.16), transparent 55%),
+                        linear-gradient(165deg, #020617 0%, #071426 38%, #0b1c33 100%);
+            color: var(--text-primary);
+            line-height: 1.7;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before,
+        body::after {
+            content: "";
+            position: fixed;
+            width: 520px;
+            height: 520px;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.25;
+            z-index: -2;
+        }
+
+        body::before {
+            background: rgba(30, 193, 147, 0.25);
+            top: -180px;
+            left: -160px;
+        }
+
+        body::after {
+            background: rgba(59, 130, 246, 0.2);
+            bottom: -220px;
+            right: -140px;
+        }
+
+        .noise {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            background-image: url('https://assets-global.website-files.com/63b41d099c30bdf4f8604fb7/63b41d099c30bd7a7d604fea_Noise.png');
+            opacity: 0.06;
+            mix-blend-mode: screen;
+            z-index: -1;
+        }
+
+        .container {
+            width: min(var(--max-width), 92%);
+            margin: 0 auto;
+        }
+
+        .site-header {
+            position: sticky;
+            top: 24px;
+            z-index: 10;
+            margin: 24px auto;
+        }
+
+        .nav-shell {
+            width: min(var(--max-width), 92%);
+            margin: 0 auto;
+            background: linear-gradient(120deg, rgba(16, 34, 56, 0.9), rgba(12, 28, 48, 0.65));
+            border: 1px solid rgba(90, 135, 200, 0.45);
+            backdrop-filter: blur(26px);
+            border-radius: 28px;
+            padding: 18px 24px;
+            box-shadow: 0 30px 45px rgba(7, 16, 32, 0.55);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-shell::after {
+            content: "";
+            position: absolute;
+            inset: 1px;
+            border-radius: 26px;
+            background: linear-gradient(135deg, rgba(30, 193, 147, 0.08), rgba(59, 130, 246, 0.12));
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        .nav {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 24px;
+        }
+
+        .brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+            letter-spacing: -0.02em;
+            color: var(--text-primary);
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            font-size: 0.92rem;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-secondary);
+            padding: 10px 18px;
+            border-radius: 999px;
+            transition: all 0.2s ease;
+            border: 1px solid transparent;
+            background: rgba(5, 15, 28, 0.25);
+        }
+
+        .nav-links a:hover,
+        .nav-links a:focus-visible {
+            color: var(--text-primary);
+            border-color: rgba(30, 193, 147, 0.4);
+            background: rgba(30, 193, 147, 0.18);
+            box-shadow: 0 10px 24px rgba(23, 176, 131, 0.28);
+        }
+
+        .hero {
+            position: relative;
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 56px;
+            align-items: center;
+            margin-top: 80px;
+            margin-bottom: 120px;
+            padding: 48px;
+            border-radius: var(--radius-xl);
+            background: linear-gradient(120deg, rgba(14, 33, 58, 0.9), rgba(11, 26, 47, 0.55));
+            border: 1px solid rgba(70, 110, 170, 0.4);
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: "";
+            position: absolute;
+            top: -120px;
+            right: -160px;
+            width: 360px;
+            height: 360px;
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.35), transparent 65%);
+            filter: blur(12px);
+            opacity: 0.6;
+        }
+
+        .hero::after {
+            content: "";
+            position: absolute;
+            bottom: -140px;
+            left: -120px;
+            width: 420px;
+            height: 420px;
+            background: radial-gradient(circle, rgba(30, 193, 147, 0.32), transparent 70%);
+            filter: blur(14px);
+            opacity: 0.55;
+        }
+
+        .hero > * {
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-copy h1 {
+            font-size: clamp(2.8rem, 4vw, 3.8rem);
+            line-height: 1.05;
+            letter-spacing: -0.03em;
+            margin-bottom: 20px;
+        }
+
+        .gradient-text {
+            background: linear-gradient(120deg, #1ec193, #3b82f6);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+
+        .hero-copy p {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            margin-bottom: 32px;
+            max-width: 540px;
+        }
+
+        .pill-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 34px;
+        }
+
+        .pill {
+            padding: 8px 16px;
+            border-radius: 999px;
+            background: rgba(59, 130, 246, 0.12);
+            border: 1px solid rgba(59, 130, 246, 0.35);
+            color: var(--text-primary);
+            font-size: 0.85rem;
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: 18px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            border-radius: 14px;
+            padding: 14px 24px;
+            font-weight: 600;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #1ec193, #17b083);
+            color: var(--text-primary);
+            box-shadow: 0 20px 40px rgba(23, 176, 131, 0.28);
+        }
+
+        .btn-primary:hover,
+        .btn-primary:focus-visible {
+            transform: translateY(-3px);
+            box-shadow: 0 26px 50px rgba(23, 176, 131, 0.32);
+        }
+
+        .btn-ghost {
+            border: 1px solid rgba(67, 93, 135, 0.45);
+            color: var(--text-primary);
+            background: rgba(12, 24, 43, 0.35);
+        }
+
+        .btn-ghost:hover,
+        .btn-ghost:focus-visible {
+            border-color: rgba(59, 130, 246, 0.45);
+            color: var(--text-primary);
+            transform: translateY(-3px);
+            box-shadow: 0 20px 35px rgba(16, 27, 48, 0.4);
+        }
+
+        .hero-visual {
+            position: relative;
+        }
+
+        .hero-card {
+            position: relative;
+            background: linear-gradient(145deg, rgba(20, 40, 65, 0.85), rgba(16, 33, 54, 0.6));
+            border: 1px solid rgba(73, 112, 165, 0.45);
+            border-radius: var(--radius-xl);
+            padding: 38px;
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+            backdrop-filter: blur(24px);
+        }
+
+        .hero-card::before {
+            content: "";
+            position: absolute;
+            inset: 24px;
+            border-radius: var(--radius-lg);
+            background: radial-gradient(circle at 15% 10%, rgba(30, 193, 147, 0.35), transparent 65%);
+            opacity: 0.65;
+        }
+
+        .hero-card h3 {
+            font-size: 1rem;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            margin-bottom: 18px;
+            color: var(--text-muted);
+        }
+
+        .hero-card h2 {
+            font-size: 2.1rem;
+            margin-bottom: 16px;
+            max-width: 420px;
+        }
+
+        .hero-card ul {
+            list-style: none;
+            display: grid;
+            gap: 12px;
+            color: var(--text-secondary);
+        }
+
+        .hero-card li {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(12, 24, 43, 0.45);
+            border: 1px solid rgba(64, 92, 140, 0.35);
+            border-radius: 14px;
+            padding: 12px 16px;
+        }
+
+        .hero-card li span {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 12px;
+            background: rgba(30, 193, 147, 0.18);
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        section {
+            margin-bottom: 120px;
+        }
+
+        .section-heading {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 46px;
+            flex-wrap: wrap;
+            gap: 18px;
+        }
+
+        .section-title {
+            font-size: clamp(2rem, 2.8vw, 2.6rem);
+            letter-spacing: -0.03em;
+        }
+
+        .section-description {
+            max-width: 540px;
+            color: var(--text-secondary);
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 26px;
+        }
+
+        .info-card {
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 32px;
+            box-shadow: var(--shadow-md);
+            transition: transform 0.25s ease, border 0.25s ease, box-shadow 0.25s ease;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(28px);
+        }
+
+        .info-card::after {
+            content: "";
+            position: absolute;
+            inset: 1px;
+            border-radius: calc(var(--radius-md) - 1px);
+            background: linear-gradient(160deg, rgba(30, 193, 147, 0.08), transparent 70%);
+            pointer-events: none;
+        }
+
+        .info-card:hover {
+            transform: translateY(-10px);
+            border-color: rgba(30, 193, 147, 0.55);
+            box-shadow: 0 36px 60px rgba(10, 25, 47, 0.55);
+        }
+
+        .info-card h3 {
+            font-size: 1.4rem;
+            margin-bottom: 12px;
+        }
+
+        .info-card p {
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+        }
+
+        .info-card p:last-child {
+            margin-bottom: 0;
+        }
+
+        .label {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 14px;
+            border-radius: 999px;
+            background: rgba(30, 193, 147, 0.14);
+            color: var(--primary);
+            font-size: 0.75rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            margin-bottom: 18px;
+            border: 1px solid rgba(30, 193, 147, 0.35);
+        }
+
+        .split {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 36px;
+            align-items: center;
+        }
+
+        .split-card {
+            background: linear-gradient(160deg, rgba(21, 42, 70, 0.85), rgba(16, 33, 54, 0.65));
+            border: 1px solid rgba(73, 112, 165, 0.35);
+            border-radius: var(--radius-lg);
+            padding: 38px;
+            box-shadow: var(--shadow-md);
+        }
+
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 20px;
+            margin-top: 28px;
+        }
+
+        .stat {
+            padding: 22px;
+            border-radius: 18px;
+            background: rgba(11, 28, 52, 0.52);
+            border: 1px solid rgba(67, 93, 135, 0.35);
+        }
+
+        .stat h4 {
+            font-size: 2rem;
+            margin-bottom: 6px;
+            color: var(--primary);
+        }
+
+        .stat span {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .how-grid {
+            display: grid;
+            gap: 24px;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        }
+
+        .how-step {
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 26px;
+            box-shadow: var(--shadow-md);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .step-badge {
+            width: 38px;
+            height: 38px;
+            border-radius: 14px;
+            background: rgba(59, 130, 246, 0.16);
+            border: 1px solid rgba(59, 130, 246, 0.4);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-primary);
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        .how-step h4 {
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+        }
+
+        .how-step p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .diagnosis-section {
+            display: grid;
+            grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+            gap: 38px;
+            align-items: start;
+        }
+
+        .diagnosis-panel {
+            background: linear-gradient(170deg, rgba(20, 39, 65, 0.82), rgba(18, 36, 62, 0.68));
+            border: 1px solid rgba(67, 93, 135, 0.45);
+            border-radius: var(--radius-lg);
+            padding: 38px;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 32px;
+        }
+
+        .panel-header h3 {
+            font-size: 1.4rem;
+        }
+
+        .panel-meta {
+            display: flex;
+            gap: 12px;
+        }
+
+        .meta-chip {
+            padding: 8px 14px;
+            border-radius: 999px;
+            background: rgba(30, 193, 147, 0.16);
+            border: 1px solid rgba(30, 193, 147, 0.35);
+            color: var(--primary);
+            font-size: 0.8rem;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+
+        .form-group {
+            margin-bottom: 22px;
+        }
+
+        .form-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 14px 18px;
+            border-radius: 16px;
+            border: 1px solid rgba(67, 93, 135, 0.45);
+            background: rgba(10, 22, 38, 0.65);
+            color: var(--text-primary);
+            font-size: 1rem;
+            transition: border 0.2s ease, box-shadow 0.2s ease;
+            outline: none;
+        }
+
+        .form-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .form-input:focus {
+            border-color: rgba(30, 193, 147, 0.6);
+            box-shadow: 0 0 0 4px rgba(30, 193, 147, 0.2);
+        }
+
+        .form-textarea {
+            min-height: 140px;
+            resize: vertical;
+        }
+
+        .analyze-btn {
+            width: 100%;
+            padding: 16px 24px;
+            border-radius: 16px;
+            border: none;
+            font-weight: 600;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            background: linear-gradient(135deg, #1ec193, #17b083);
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: 0 24px 46px rgba(23, 176, 131, 0.28);
+        }
+
+        .analyze-btn:hover:not(:disabled),
+        .analyze-btn:focus-visible:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 30px 60px rgba(23, 176, 131, 0.32);
+        }
+
+        .analyze-btn:disabled {
+            opacity: 0.65;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .loading {
+            display: grid;
+            place-items: center;
+            gap: 14px;
+            padding: 32px;
+            text-align: center;
+            color: var(--text-secondary);
+            border-radius: 18px;
+            border: 1px solid rgba(59, 130, 246, 0.25);
+            background: rgba(6, 19, 35, 0.6);
+            margin-top: 26px;
+        }
+
+        .loading-spinner {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 4px solid rgba(59, 130, 246, 0.25);
+            border-top-color: rgba(59, 130, 246, 0.75);
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .insights-panel {
+            background: rgba(8, 19, 35, 0.65);
+            border: 1px solid rgba(67, 93, 135, 0.35);
+            border-radius: var(--radius-lg);
+            padding: 34px;
+            box-shadow: var(--shadow-md);
+            position: sticky;
+            top: 140px;
+        }
+
+        .insights-panel h3 {
+            font-size: 1.2rem;
+            margin-bottom: 12px;
+        }
+
+        .insights-panel p {
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+        }
+
+        .stats-list {
+            display: grid;
+            gap: 16px;
+            margin-bottom: 26px;
+        }
+
+        .stat-item {
+            padding: 18px;
+            border-radius: 16px;
+            border: 1px solid rgba(67, 93, 135, 0.35);
+            background: rgba(10, 25, 47, 0.5);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .stat-label {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+
+        .stat-value {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .examples-card {
+            padding: 22px;
+            border-radius: 18px;
+            border: 1px solid rgba(59, 130, 246, 0.35);
+            background: rgba(9, 20, 36, 0.55);
+        }
+
+        .examples-title {
+            font-size: 0.85rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 16px;
+        }
+
+        .example-item {
+            padding: 16px;
+            border-radius: 16px;
+            background: rgba(8, 19, 35, 0.65);
+            border: 1px solid rgba(67, 93, 135, 0.35);
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .example-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .example-item:hover {
+            border-color: rgba(30, 193, 147, 0.45);
+            color: var(--text-primary);
+            transform: translateY(-2px);
+        }
+
+        .results {
+            margin-top: 32px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        .results.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .plant-info,
+        .diagnosis {
+            background: rgba(8, 19, 35, 0.65);
+            border: 1px solid rgba(67, 93, 135, 0.35);
+            border-radius: 18px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow-md);
+        }
+
+        .plant-header {
+            display: flex;
+            gap: 18px;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .plant-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 16px;
+            background: rgba(30, 193, 147, 0.18);
+            border: 1px solid rgba(30, 193, 147, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        .plant-meta {
+            display: flex;
+            gap: 18px;
+            flex-wrap: wrap;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .meta-value {
+            color: var(--primary);
+            margin-left: 6px;
+        }
+
+        .diagnosis-header {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            align-items: center;
+            margin-bottom: 14px;
+        }
+
+        .confidence-badge {
+            padding: 8px 14px;
+            border-radius: 999px;
+            background: rgba(30, 193, 147, 0.16);
+            border: 1px solid rgba(30, 193, 147, 0.45);
+            color: var(--primary);
+            font-size: 0.8rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .why-explanation {
+            color: var(--text-secondary);
+            margin-bottom: 18px;
+        }
+
+        .actions-title {
+            font-size: 0.9rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+        }
+
+        .actions-list {
+            list-style: none;
+            display: grid;
+            gap: 12px;
+        }
+
+        .actions-list li {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            background: rgba(6, 17, 32, 0.7);
+            border: 1px solid rgba(67, 93, 135, 0.35);
+            padding: 14px 16px;
+            border-radius: 16px;
+        }
+
+        .action-number {
+            width: 28px;
+            height: 28px;
+            border-radius: 10px;
+            background: rgba(30, 193, 147, 0.2);
+            color: var(--primary);
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+        }
+
+        .eco-tip {
+            margin-top: 18px;
+            padding: 18px;
+            border-radius: 16px;
+            background: rgba(6, 26, 22, 0.7);
+            border: 1px solid rgba(30, 193, 147, 0.35);
+            color: var(--text-secondary);
+        }
+
+        .eco-tip-title {
+            color: var(--primary);
+            font-size: 0.85rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+
+        .error {
+            background: rgba(156, 34, 56, 0.28);
+            border: 1px solid rgba(236, 72, 153, 0.35);
+            border-radius: 16px;
+            padding: 18px;
+            color: #fda4af;
+            text-align: center;
+        }
+
+        .cta-section {
+            background: linear-gradient(140deg, rgba(17, 39, 63, 0.9), rgba(10, 31, 46, 0.7));
+            border: 1px solid rgba(73, 112, 165, 0.45);
+            border-radius: var(--radius-xl);
+            padding: 60px 48px;
+            text-align: center;
+            box-shadow: var(--shadow-lg);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-section::before {
+            content: "";
+            position: absolute;
+            inset: 12px;
+            border-radius: calc(var(--radius-xl) - 12px);
+            background: radial-gradient(circle at center, rgba(30, 193, 147, 0.2), transparent 65%);
+            opacity: 0.5;
+        }
+
+        .cta-content {
+            position: relative;
+            z-index: 1;
+            max-width: 680px;
+            margin: 0 auto;
+        }
+
+        .cta-text {
+            color: var(--text-secondary);
+            margin: 22px auto 36px;
+            max-width: 540px;
+            font-size: 1.02rem;
+            line-height: 1.6;
+        }
+
+        .cta-actions {
+            display: flex;
+            justify-content: center;
+            gap: 18px;
+            flex-wrap: wrap;
+        }
+
+        .cta-actions .btn {
+            min-width: 180px;
+            justify-content: center;
+        }
+
+        .cta-actions .btn-ghost {
+            border-color: rgba(59, 130, 246, 0.45);
+        }
+
+        .footer {
+            margin: 110px 0 60px;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+
+        @media (max-width: 1024px) {
+            .hero {
+                padding: 36px;
+            }
+
+            .hero,
+            .diagnosis-section {
+                grid-template-columns: 1fr;
+            }
+
+            .insights-panel {
+                position: static;
+            }
+
+            .hero {
+                margin-top: 60px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-shell {
+                padding: 12px 18px;
+            }
+
+            .nav {
+                flex-wrap: wrap;
+            }
+
+            .nav-links {
+                width: 100%;
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+
+            .hero {
+                padding: 26px;
+                gap: 46px;
+            }
+
+            .panel-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 14px;
+            }
+
+            .section-heading {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .diagnosis-panel,
+            .insights-panel {
+                padding: 28px;
+            }
+        }
+
+        @media (max-width: 540px) {
+            .nav-links {
+                gap: 12px;
+            }
+
+            .hero-actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .btn {
+                justify-content: center;
+            }
+
+            .hero {
+                padding: 22px;
+            }
+
+            section {
+                margin-bottom: 90px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="noise" aria-hidden="true"></div>
+    <header class="site-header">
+        <div class="nav-shell">
+            <div class="nav" role="navigation" aria-label="Main navigation">
+                <a class="brand" href="#home">PlantGenius</a>
+                <div class="nav-links">
+                    <a href="#mission">Mission</a>
+                    <a href="#vision">Vision</a>
+                    <a href="#about">About</a>
+                    <a href="#diagnosis">Product</a>
+                    <a href="#contact">Contact</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main id="home" class="container">
+        <section class="hero" aria-labelledby="hero-title">
+            <div class="hero-copy">
+                <div class="pill-row">
+                    <div class="pill">AI-powered plant health</div>
+                    <div class="pill">700+ species</div>
+                    <div class="pill">5,000+ symptoms mapped</div>
+                </div>
+                <h1 id="hero-title">Your plant whisperer<br><span class="gradient-text">powered by intelligent care.</span></h1>
+                <p>PlantGenius listens to what your plant’s leaves, stems, and soil are saying. Describe what you’re seeing and our AI translates it into clear diagnoses and action plans — in seconds.</p>
+                <div class="hero-actions">
+                    <a class="btn btn-primary" href="#diagnosis">Run A Free Diagnosis</a>
+                    <a class="btn btn-ghost" href="#about">Discover PlantGenius</a>
+                </div>
+            </div>
+            <div class="hero-visual">
+                <div class="hero-card">
+                    <h3>PLANT INSIGHTS</h3>
+                    <h2>“Leaves are yellowing with brown, crispy edges.”</h2>
+                    <ul>
+                        <li><span>01</span> AI maps symptoms across 5,000+ issues</li>
+                        <li><span>02</span> Pinpoints likely causes with confidence</li>
+                        <li><span>03</span> Sends step-by-step recovery plan</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section id="mission" aria-labelledby="mission-title">
+            <div class="section-heading">
+                <h2 class="section-title" id="mission-title">Mission</h2>
+                <p class="section-description">We built PlantGenius to turn plant care into second nature. Our mission keeps every product decision grounded in empathy for plant parents.</p>
+            </div>
+            <div class="info-grid">
+                <article class="info-card">
+                    <div class="label">Why we exist</div>
+                    <h3>Mission At PlantGenius</h3>
+                    <p>We believe taking care of plants should feel natural — not complicated. Our mission is to help every plant lover, from first-timers to total plant nerds, understand what their plants are trying to say.</p>
+                    <p>With AI that listens, learns, and analyzes, we make it easy to spot what’s wrong and how to make it right — in just a few seconds.</p>
+                </article>
+                <article class="info-card">
+                    <div class="label">Trusted results</div>
+                    <h3>Expert-backed accuracy</h3>
+                    <p>Our diagnosis engine blends plant science, horticulture expertise, and thousands of real plant recoveries. You get precise answers without the guesswork.</p>
+                    <p>Every recommendation pairs quick wins with long-term care, so your plants stay happy well beyond a single fix.</p>
+                </article>
+                <article class="info-card">
+                    <div class="label">Plant-first UX</div>
+                    <h3>Designed for calm confidence</h3>
+                    <p>From describing symptoms to celebrating progress, PlantGenius guides you with empathy, clarity, and visuals that feel as soothing as a thriving greenhouse.</p>
+                </article>
+            </div>
+        </section>
+
+        <section id="vision" aria-labelledby="vision-title">
+            <div class="split">
+                <div class="split-card">
+                    <div class="label">Where we’re headed</div>
+                    <h2 class="section-title" id="vision-title">Vision</h2>
+                    <p>We dream of a world where every plant thrives — where yellow leaves and sad stems are a thing of the past. PlantGenius is here to be your plant’s digital bestie: a smart companion that doesn’t just diagnose problems, but helps you grow alongside your plants.</p>
+                    <p>As we learn and evolve, we want to make caring for nature second nature for everyone.</p>
+                </div>
+                <div>
+                    <div class="stats-bar">
+                        <div class="stat">
+                            <h4>736</h4>
+                            <span>Plant profiles</span>
+                        </div>
+                        <div class="stat">
+                            <h4>5,000+</h4>
+                            <span>Symptoms tracked</span>
+                        </div>
+                        <div class="stat">
+                            <h4>98.7%</h4>
+                            <span>Confidence accuracy</span>
+                        </div>
+                        <div class="stat">
+                            <h4>24/7</h4>
+                            <span>Instant support</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="about" aria-labelledby="about-title">
+            <div class="section-heading">
+                <h2 class="section-title" id="about-title">About PlantGenius</h2>
+                <p class="section-description">Real people, real plants, and a love for technology that actually helps. Get to know the team behind the leaf-loving AI.</p>
+            </div>
+            <div class="split">
+                <article class="info-card">
+                    <div class="label">Who we are</div>
+                    <h3>Hey there 👋 we’re PlantGenius</h3>
+                    <p>We’re a bunch of nature geeks and tech enthusiasts who decided plants deserve better healthcare. So we built an AI that can actually see what’s going on with your plant — analyzing over 700 species and 5,000+ symptoms to give you quick, reliable answers.</p>
+                    <p>Whether your Monstera’s got crispy edges, your Snake Plant’s melting, or your Tulsi just looks… off — we’ve got your back. Describe what you see, and we’ll tell you what your plant’s feeling and how to fix it.</p>
+                    <p>Because taking care of plants shouldn’t be a guessing game — it should be a conversation. 🌿💬</p>
+                </article>
+                <div class="info-card">
+                    <div class="label">How it works</div>
+                    <h3>Guided care workflows</h3>
+                    <div class="how-grid">
+                        <div class="how-step">
+                            <div class="step-badge">01</div>
+                            <h4>Tell us what you see</h4>
+                            <p>Describe colors, textures, watering habits, or anything that feels off. The more detail, the smarter the match.</p>
+                        </div>
+                        <div class="how-step">
+                            <div class="step-badge">02</div>
+                            <h4>Review rapid diagnoses</h4>
+                            <p>PlantGenius cross-checks your symptoms against our expert knowledge base and surfaces likely causes immediately.</p>
+                        </div>
+                        <div class="how-step">
+                            <div class="step-badge">03</div>
+                            <h4>Act with confidence</h4>
+                            <p>Follow tailored recovery steps, eco-conscious care tips, and proactive insights to keep your plant thriving.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="diagnosis" aria-labelledby="diagnosis-title">
+            <div class="section-heading">
+                <h2 class="section-title" id="diagnosis-title">Diagnose in seconds</h2>
+                <p class="section-description">Tell PlantGenius what you notice. We’ll respond with precision diagnoses, confidence levels, and actionable care plans.</p>
+            </div>
+            <div class="diagnosis-section">
+                <div class="diagnosis-panel" role="form" aria-labelledby="diagnosis-title">
+                    <div class="panel-header">
+                        <h3>Plant Health Analysis</h3>
+                        <div class="panel-meta">
+                            <div class="meta-chip">Real-time AI</div>
+                            <div class="meta-chip">Expert insights</div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="plantName"><span>Plant Name</span><span>optional</span></label>
+                        <input type="text" id="plantName" class="form-input" placeholder="e.g., Monstera deliciosa, Snake Plant, Tulsi">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="plantInput"><span>What are you noticing?</span><span>required</span></label>
+                        <textarea id="plantInput" class="form-input form-textarea" placeholder="Describe the symptoms you're observing: yellowing leaves, brown spots, wilting, etc."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="environment"><span>Environment</span><span>optional</span></label>
+                        <input type="text" id="environment" class="form-input" placeholder="e.g., Bright indirect light, bathroom humidity, near window">
+                    </div>
+                    <button class="analyze-btn" onclick="analyzePlant()">Analyze Plant Health</button>
+                    <div id="loading" class="loading" style="display:none;">
+                        <div class="loading-spinner" aria-hidden="true"></div>
+                        <strong>Analyzing your plant...</strong>
+                        <p style="font-size:0.9rem; color:var(--text-muted);">Mapping symptoms to our knowledge base and crafting steps you can trust.</p>
+                    </div>
+                    <div id="results" class="results" aria-live="polite"></div>
+                </div>
+                <aside class="insights-panel" aria-label="Product highlights">
+                    <h3>Why growers choose PlantGenius</h3>
+                    <p>Designed for home growers, greenhouse pros, and anyone who wants calmer, smarter plant care.</p>
+                    <div class="stats-list">
+                        <div class="stat-item">
+                            <span class="stat-label">Plants in database</span>
+                            <span class="stat-value" id="plantCount">736</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Symptoms tracked</span>
+                            <span class="stat-value" id="symptomCount">5000+</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Accuracy</span>
+                            <span class="stat-value" id="accuracyRate">98.7%</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Diagnoses today</span>
+                            <span class="stat-value" id="diagnosesToday">0</span>
+                        </div>
+                    </div>
+                    <div class="examples-card">
+                        <div class="examples-title">Quick Examples</div>
+                        <div class="example-item" onclick="useExample(this)">Monstera deliciosa with yellow leaves and brown edges, soil constantly wet</div>
+                        <div class="example-item" onclick="useExample(this)">Snake plant leaves are mushy and falling over, no drainage holes</div>
+                        <div class="example-item" onclick="useExample(this)">Pothos vines are leggy with small leaves, indirect light exposure</div>
+                        <div class="example-item" onclick="useExample(this)">Aloe vera stretching tall and thin, pale green coloration</div>
+                        <div class="example-item" onclick="useExample(this)">Tulsi leaves crispy and brown, soil feels dry to touch</div>
+                    </div>
+                </aside>
+            </div>
+        </section>
+
+        <section id="contact" aria-labelledby="cta-title">
+            <div class="cta-section">
+                <div class="cta-content">
+                    <div class="label">Early access</div>
+                    <h2 class="section-title" id="cta-title">Become a founding grower with PlantGenius</h2>
+                    <p class="cta-text">We’re polishing the final experience before launch. Get first dibs on the beta, co-create new features with our team, and shape the future of plant care intelligence.</p>
+                    <div class="cta-actions">
+                        <a class="btn btn-primary" href="mailto:hello@plantgenius.ai?subject=PlantGenius%20Early%20Access">Join the beta waitlist</a>
+                        <a class="btn btn-ghost" href="#about">See what we’re building</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    
+
+    <script>
+        const yearElement = document.getElementById('year');
+        if (yearElement) {
+            yearElement.textContent = new Date().getFullYear();
+        }
+
+        async function updateStats() {
+            try {
+                const response = await fetch('/api/stats');
+                if (!response.ok) throw new Error('Stats unavailable');
+                const stats = await response.json();
+                if (typeof stats.totalInteractions !== 'undefined') {
+                    document.getElementById('diagnosesToday').textContent = stats.totalInteractions;
+                }
+            } catch (error) {
+                console.info('Stats not available yet');
+            }
+        }
+
+        async function analyzePlant() {
+            const plantName = document.getElementById('plantName').value.trim();
+            const condition = document.getElementById('plantInput').value.trim();
+            const environment = document.getElementById('environment').value.trim();
+
+            const loading = document.getElementById('loading');
+            const results = document.getElementById('results');
+            const analyzeBtn = document.querySelector('.analyze-btn');
+
+            if (!condition) {
+                showError("Please describe your plant's condition first!");
+                return;
+            }
+
+            let inputText = condition;
+            if (plantName) {
+                inputText = `${plantName} ${condition}`;
+            }
+            if (environment) {
+                inputText += ` ${environment}`;
+            }
+
+            loading.style.display = 'grid';
+            results.style.display = 'none';
+            analyzeBtn.disabled = true;
+            analyzeBtn.textContent = 'Analyzing...';
+
+            try {
+                const response = await fetch('/api/diagnose', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ text: inputText })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Analysis failed: ${response.status}`);
+                }
+
+                const data = await response.json();
+                displayResults(data);
+                updateStats();
+
+            } catch (error) {
+                console.error('Error:', error);
+                showError(`Analysis failed: ${error.message}. Please try again.`);
+            } finally {
+                loading.style.display = 'none';
+                analyzeBtn.disabled = false;
+                analyzeBtn.textContent = 'Analyze Plant Health';
+            }
+        }
+
+        function displayResults(data) {
+            const results = document.getElementById('results');
+
+            let html = `
+                <div class="plant-info">
+                    <div class="plant-header">
+                        <div class="plant-icon">PL</div>
+                        <div>
+                            <h3>${data.plantName || 'Plant profile identified'}</h3>
+                            <div class="plant-meta">
+                                <div>Match Score<span class="meta-value">${Math.round((data.plantMatchScore || 0) * 100)}%</span></div>
+                                <div>Method<span class="meta-value">${data.detectionMethod || 'AI analysis'}</span></div>
+                                <div>Analyzed<span class="meta-value">${data.timestamp ? new Date(data.timestamp).toLocaleTimeString() : 'Just now'}</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            if (!data.diagnoses || data.diagnoses.length === 0) {
+                html += `
+                    <div class="error">
+                        No specific diagnoses found. Try providing more detailed symptoms or mention the plant name.
+                    </div>
+                `;
+            } else {
+                data.diagnoses.forEach((diagnosis, index) => {
+                    const actions = (diagnosis.actions || []).map((action, i) => `
+                        <li>
+                            <div class="action-number">${i + 1}</div>
+                            <div>${action}</div>
+                        </li>
+                    `).join('');
+
+                    html += `
+                        <div class="diagnosis">
+                            <div class="diagnosis-header">
+                                <div class="diagnosis-title">${index + 1}. ${diagnosis.cause?.label || 'Potential issue'}</div>
+                                <div class="confidence-badge">${Math.round((diagnosis.confidence || 0) * 100)}%</div>
+                            </div>
+                            <div class="why-explanation">${diagnosis.why || 'We identified patterns that match your plant’s current symptoms.'}</div>
+                            ${actions ? `
+                                <div class="actions-section">
+                                    <div class="actions-title">Recommended Actions</div>
+                                    <ul class="actions-list">${actions}</ul>
+                                </div>` : ''}
+                            ${diagnosis.eco_tip ? `
+                                <div class="eco-tip">
+                                    <div class="eco-tip-title">Eco-Friendly Tip</div>
+                                    <div class="eco-tip-text">${diagnosis.eco_tip}</div>
+                                </div>` : ''}
+                        </div>
+                    `;
+                });
+            }
+
+            results.innerHTML = html;
+            results.style.display = 'block';
+            results.classList.add('show');
+        }
+
+        function showError(message) {
+            const results = document.getElementById('results');
+            results.innerHTML = `
+                <div class="error">${message}</div>
+            `;
+            results.style.display = 'block';
+            results.classList.add('show');
+        }
+
+        function useExample(element) {
+            const text = element.textContent;
+            const parts = text.split(' with ');
+            if (parts.length > 1) {
+                document.getElementById('plantName').value = parts[0];
+                document.getElementById('plantInput').value = parts[1];
+            } else {
+                document.getElementById('plantInput').value = text;
+            }
+            document.getElementById('plantInput').focus();
+        }
+
+        document.getElementById('plantInput').addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' && e.ctrlKey) {
+                analyzePlant();
+            }
+        });
+
+        updateStats();
+    </script>
+</body>
+</html>

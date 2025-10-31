@@ -1,0 +1,22 @@
+{
+  "server": {
+    "port": 3000,
+    "host": "localhost"
+  },
+  "diagnosis": {
+    "minConfidenceThreshold": 0.3,
+    "maxDiagnoses": 3,
+    "plantMatchWeight": 0.4,
+    "symptomMatchWeight": 0.6,
+    "fuzzyThreshold": 0.6
+  },
+  "logging": {
+    "enabled": true,
+    "directory": "./logs",
+    "filenameFormat": "plant-helper-{YYYY-MM-DD}.json"
+  },
+  "ui": {
+    "tone": "friendly-sassy",
+    "maxInputLength": 500
+  }
+}

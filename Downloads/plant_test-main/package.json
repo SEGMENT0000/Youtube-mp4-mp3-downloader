@@ -1,0 +1,23 @@
+{
+  "name": "plant-helper",
+  "version": "1.0.0",
+  "description": "Local Plant Helper App - Diagnose plant issues with AI-powered suggestions",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "cli": "node src/cli.js",
+    "dev": "node --watch src/index.js",
+    "test": "node src/test.js"
+  },
+  "keywords": ["plant", "diagnosis", "gardening", "local", "ai"],
+  "author": "Plant Helper AI",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "fuse.js": "^7.0.0",
+    "cors": "^2.8.5"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}
